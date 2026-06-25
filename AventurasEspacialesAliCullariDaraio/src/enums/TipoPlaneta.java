@@ -2,6 +2,7 @@ package enums;
 
 public enum TipoPlaneta {   
     
+    BASE("Base"),
     ROCOSO("Rocoso"), 
     GASEOSO("Gaseoso"), 
     VOLCANICO("Volcánico");

@@ -11,6 +11,10 @@ public class Planeta {
         this.tipo = tipo;
     }
 
+    public TipoPlaneta getTipo() {
+        return tipo;
+    }
+
     public Recurso generarRecurso() {
         int probabilidad = GenerarRandom.generarNumeroRandom(1, 100);
         switch (tipo) {
