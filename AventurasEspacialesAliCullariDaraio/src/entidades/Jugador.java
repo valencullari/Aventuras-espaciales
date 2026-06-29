@@ -30,9 +30,13 @@ public class Jugador {
     }
 
     public void setCreditosEspaciales(int creditosEspaciales) {
-        if (creditosEspaciales >= 0) {
-            this.creditosEspaciales = creditosEspaciales;
+        if (creditosEspaciales < 0){
+            this.creditosEspaciales = 0;
         }
+    }
+
+    public void restarCreditos(int creditosRestar) {
+        setCreditosEspaciales(this.creditosEspaciales-creditosRestar);
     }
 
     public int getCreditosEspaciales() {
@@ -54,5 +58,10 @@ public class Jugador {
     public void setPlanetaActual(Planeta planetaActual) {
         this.planetaActual = planetaActual;
     }
-
+    
+    public void mostrarInformacion() {
+        System.out.println("Nombre: " + this.nombre);
+        System.out.println("Energía: " + this.energia);
+        System.out.println("Créditos espaciales: " + this.creditosEspaciales);
+    }
 }

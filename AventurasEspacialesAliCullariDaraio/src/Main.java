@@ -3,25 +3,32 @@ import entrada.Entrada;
 import enums.TipoPlaneta;
 import naves.*;
 import planetas.Planeta;
+import recursos.Recurso;
+
 
 public class Main {
+
+    final static int PRECIO_REPARACION = 25,MIN_OPC_MENU = 1;
+
+
     public static void main(String[] args) {
         Entrada entrada = new Entrada();
-        Planeta[] planetas = getPlanetas();
+        final int MAX_OPC_MENU_PRINCIPAL = 8, MAX_OPC_MENU_PLANETAS = 3;
+
         boolean flag = true;
         System.out.println("Bienvenido a Aventuras Espaciales");
         Jugador jugador = crearJugador(entrada);
         jugador.setNave(seleccionarNaves(entrada));
-        mostrarInformacionJugador(jugador);
-        mosrarInformacionNave(jugador.getNave());
+        jugador.mostrarInformacion();
+        jugador.getNave().mosrarInformacion();
         do {
             if(jugador.getPlanetaActual().getTipo() == TipoPlaneta.BASE ) {
                 mostrarMenuPrincipal(entrada);
-                int opcion = entrada.ingresarEntero(1, 8);
+                int opcion = entrada.ingresarEntero(MIN_OPC_MENU,  MAX_OPC_MENU_PRINCIPAL);
                 flag = ejecutarOpcionBase(opcion, jugador, entrada );
             } else {
                 mostarMenuPlaneta(jugador, entrada);
-                int opcion = entrada.ingresarEntero(1, 3);
+                int opcion = entrada.ingresarEntero(MIN_OPC_MENU, MAX_OPC_MENU_PLANETAS);
                 ejecutarOpcionPlaneta(opcion, jugador, entrada);
             }
         } while (flag);
@@ -62,6 +69,11 @@ public class Main {
                 break;
             case 2:
                 System.out.println("Ver bodega de carga");
+
+                //PROBLEMITAS ni idea porque no puede llamar al metodo mostrarBodega() de la clase Bodega si a agregar recurso si puede.
+                Recurso recurso = new Recurso("Recurso de prueba", 10, 100);
+                jugador.getNave().getBodega().agregarRecurso(recurso, 150);
+                jugador.getNave().getBodega().mostrarBodega();
                 break;
             case 3:
                 System.out.println("Vender recursos");
@@ -73,12 +85,12 @@ public class Main {
                 System.out.println("Entregar recursos para una misión");
                 break;
             case 6:
-                if(jugador.getCreditosEspaciales() >= 25 && jugador.getNave().getVida() < 100) {
-                    repararNave(jugador, entrada);
-                }else if(jugador.getNave().getVida() >= 100) {
+                if(jugador.getNave().getVida() >= 100) {
                     System.out.println("La nave ya tiene 100 de vida. No es necesario repararla.");
-                }else{
+                } else if(jugador.getCreditosEspaciales() < PRECIO_REPARACION) {
                     System.out.println("No tienes suficientes créditos espaciales para reparar la nave. Necesitas al menos 25 créditos espaciales. Actualmente tienes: " + jugador.getCreditosEspaciales() + " créditos espaciales. ");
+                } else if(jugador.getCreditosEspaciales() >= PRECIO_REPARACION && jugador.getNave().getVida() < 100) {
+                    repararNave(jugador, entrada);
                 }
                 break;
             case 7:
@@ -123,18 +135,7 @@ public class Main {
         System.out.println("8. Salir del juego");
     }
 
-    public static void mostrarInformacionJugador(Jugador jugador) {
-        System.out.println("Nombre: " + jugador.getNombre());
-        System.out.println("Energía: " + jugador.getEnergia());
-        System.out.println("Créditos espaciales: " + jugador.getCreditosEspaciales());
-    }
 
-    public static void mosrarInformacionNave(Nave nave) {
-        System.out.println("Nave seleccionada: " + nave.getNombre());
-        System.out.println("Velocidad: " + nave.getVelocidad().getNombre());
-        System.out.println("Capacidad máxima: " + nave.getCapacidadMaxima() + " Toneladas");
-        System.out.println("Capacidad actual: " + nave.getCapacidadActual());
-    }
 
     public static Jugador crearJugador(Entrada entrada) {
 
@@ -180,7 +181,7 @@ public class Main {
     private static void viajarPlaneta(Jugador jugador, Entrada entrada) {
         System.out.println("Seleccione un planeta para viajar:");
         mostrarPlanetas(getPlanetas());
-        int opcionPlaneta = entrada.ingresarEntero(1, getPlanetas().length-1);
+        int opcionPlaneta = entrada.ingresarEntero(MIN_OPC_MENU, getPlanetas().length-1);
         if(jugador.getPlanetaActual().getTipo() == getPlanetas()[opcionPlaneta].getTipo()) {
             System.out.println("Ya te encuentras en el planeta " + jugador.getPlanetaActual().getTipo().getNombre() + ". No puedes viajar al mismo planeta.");
             return;
@@ -195,18 +196,20 @@ public class Main {
     }
 
     public static void repararNave(Jugador jugador, Entrada entrada) {
+        int vidaReparar = 10;
+
         System.out.println("¿Cuántas veces deseas reparar la nave? (1-10):");
         int cantVecesReparar = entrada.ingresarEntero(1, 10);
-        if(jugador.getNave().getVida()+10*cantVecesReparar >= 110) {
+        if((jugador.getNave().getVida()+vidaReparar*cantVecesReparar) >= 110) {
             System.out.println("No puedes reparar la nave más de 100 de vida. La nave tiene actualmente " + jugador.getNave().getVida() + " puntos de vida.");
             return;
-        } else if(jugador.getCreditosEspaciales() < 25 * cantVecesReparar ) {
+        } else if(jugador.getCreditosEspaciales() < PRECIO_REPARACION * cantVecesReparar ) {
             System.out.println("No tienes suficientes créditos espaciales para reparar la nave " + cantVecesReparar + " veces. Precio de reparación: 25 créditos espaciales por reparación.");
             return;
         } else {
             for(int i = 0; i < cantVecesReparar; i ++) {
-                jugador.getNave().reparar();
-                jugador.setCreditosEspaciales(jugador.getCreditosEspaciales() - 25);
+                jugador.getNave().reparar(vidaReparar);
+                jugador.restarCreditos(PRECIO_REPARACION);
             }
             System.out.println("La nave ha sido reparada " + cantVecesReparar + " veces. Vida actual: " + jugador.getNave().getVida() + ". Créditos espaciales restantes: " + jugador.getCreditosEspaciales());
         }

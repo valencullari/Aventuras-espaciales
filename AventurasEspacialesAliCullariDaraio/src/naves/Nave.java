@@ -2,18 +2,23 @@ package naves;
 
 import enums.Velocidad;
 
+
 public class Nave {
+
+    private final int VIDA_MAXIMA = 100;
+    private final int VIDA_MINIMA = 0;
     private String nombre;
     private Velocidad velocidad;
     private int capacidadMaxima;
     private int capacidadActual = 0;
-    private int vida = 100;
+    private int vida = VIDA_MAXIMA;
+    private Bodega bodega;
 
     public Nave(String nombre, Velocidad velocidad, int capacidadMaxima) {
         this.nombre = nombre;
         this.velocidad = velocidad;
         this.capacidadMaxima = capacidadMaxima;
-
+        this.bodega = new Bodega();
     }
 
     public String getNombre() {
@@ -33,10 +38,19 @@ public class Nave {
     }
 
     public void setVida(int vida) {
-        if (vida >= 0 && vida <= 100) {
+        if (vida >= VIDA_MINIMA && vida <= VIDA_MAXIMA) {
             this.vida = vida;
+        } else if (vida > VIDA_MAXIMA) {
+            this.vida = VIDA_MAXIMA;
+        } else if (vida < VIDA_MINIMA) {
+            this.vida = VIDA_MINIMA;
         }
     }
+
+    public void sumarVida (int vida) {
+        setVida((this.vida+vida));
+    }
+
 
     public int getCapacidadActual() {
         return capacidadActual;
@@ -46,13 +60,20 @@ public class Nave {
         this.capacidadActual = capacidadActual;
     }
 
-     public void reparar() {
-        if (this.vida <= 90) {
-            this.vida += 10;
-        } else {
-            this.vida = 100;
-        }
+    public Bodega getBodega() {
+        return this.bodega;
+    }
+
+     public void reparar(int cantVidaReparar) {
+        sumarVida(cantVidaReparar);
         
+    }
+
+    public void mosrarInformacion() {
+        System.out.println("Nave seleccionada: " + this.nombre);
+        System.out.println("Velocidad: " + this.velocidad.getNombre());
+        System.out.println("Capacidad máxima: " + this.capacidadMaxima + " Toneladas");
+        System.out.println("Capacidad actual: " + this.capacidadActual + " Toneladas");
     }
 
 
