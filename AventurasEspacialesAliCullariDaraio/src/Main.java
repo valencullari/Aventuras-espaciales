@@ -1,9 +1,15 @@
 import entidades.Jugador;
 import entrada.Entrada;
 import enums.TipoPlaneta;
+import misiones.Mision;
+import misiones.Mision1;
+import misiones.Mision2;
+import misiones.Mision3;
 import naves.*;
 import planetas.Planeta;
 import recursos.*;
+import utilidades.GenerarRandom;
+
 import java.util.ArrayList;
 
 
@@ -15,10 +21,10 @@ public class Main {
     public static void main(String[] args) {
         Entrada entrada = new Entrada();
         final int MAX_OPC_MENU_PRINCIPAL = 8, MAX_OPC_MENU_PLANETAS = 3;
-
         boolean flag = true;
         System.out.println("Bienvenido a Aventuras Espaciales");
         Jugador jugador = crearJugador(entrada);
+        mostrarMisiones(jugador);
         jugador.setNave(seleccionarNaves(entrada));
         jugador.mostrarInformacion();
         jugador.getNave().mosrarInformacion();
@@ -69,24 +75,14 @@ public class Main {
                 viajarPlaneta(jugador, entrada);
                 break;
             case 2:
-                
-                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
-                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
-                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
                 if(jugador.getNave().getBodega().getListaRecursos() == null) {
                     System.out.println("La bodega está vacía.");
                 } else {
                     jugador.getNave().getBodega().mostrarBodega();
                 }
-
-                jugador.getNave().getBodega().eliminarRecurso(new Plasma());
-                jugador.getNave().getBodega().mostrarBodega();
                 break;
             case 3:
                 boolean flag = true;
-                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
-                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
-                jugador.getNave().getBodega().agregarRecurso(new Obsidiana(), jugador.getNave().getCapacidadMaxima());
                 if (jugador.getNave().getBodega().getPesoUtilizado() == 0) {
                     System.out.println("No tenes recursos para vender");
                 } else {
@@ -125,6 +121,13 @@ public class Main {
         
     }
 
+    public static void mostrarMisiones(Jugador jugador){
+        for(Mision mision : jugador.getMisiones()){
+            System.out.println("");
+            mision.mostrarMision();
+        }
+    }
+
     public static void menuVentas() {
         System.out.println("¿Que desea hacer?");
         System.out.println("1. Vender recurso especifico");
@@ -135,11 +138,10 @@ public class Main {
     public static boolean ejecutarOpcionVentas(int opcion, Jugador jugador, Entrada entrada) {
         switch (opcion) {
             case 1:
-                    venderRecursos(jugador, entrada);
+                venderRecurso(jugador, entrada);
                 break;
             case 2:
-                System.out.println("Vender todos los recursos");
-                //falta implementar la logica de vender todos los recursos
+                venderTodosRecursos(jugador);
                 break;
             case 3:
                 System.out.println("Saliendo del menú de ventas...");
@@ -148,7 +150,7 @@ public class Main {
         return true;
     }
 
-    private static void venderRecursos(Jugador jugador, Entrada entrada) {
+    private static void venderRecurso(Jugador jugador, Entrada entrada) {
         boolean flag = false;
         jugador.getNave().getBodega().mostrarBodega();
         System.out.println("Ingrese el nombre del recurso que desea vender:");
@@ -170,11 +172,26 @@ public class Main {
         
     }
 
+    public static void venderTodosRecursos(Jugador jugador) {
+        ArrayList<Recurso> recursos = new ArrayList<>(jugador.getNave().getBodega().getListaRecursos());
+        for(Recurso recurso : recursos) {
+            jugador.getNave().getBodega().eliminarRecurso(recurso);
+            jugador.sumarCreditos(recurso.getValorVenta());
+        }
+        jugador.getNave().getBodega().mostrarBodega();
+        System.out.println("Los recursos se vendieron correctamente. Ahora tiene " + jugador.getCreditosEspaciales() + " creditos espaciales.");
+    }
+
     public static void ejecutarOpcionPlaneta(int opcion, Jugador jugador, Entrada entrada) {
         switch (opcion) {
             case 1:
-                System.out.println("Minar recursos");
-                //falta implementar la logica de minar recursos
+                int energiaGastar = GenerarRandom.generarNumeroRandom(10,25);
+                if(jugador.getEnergia() >= energiaGastar) {
+                    System.out.println("Se gasto " + energiaGastar + " puntos de energia. Energia restante: " + jugador.getEnergia());
+                    minarRecursos(jugador, energiaGastar);
+                } else {
+                    System.out.println("No podes minar, no tenes la energia suficiente. Energia restante: " + jugador.getEnergia());
+                }
                 break;
             case 2:
                 viajarPlaneta(jugador, entrada);
@@ -185,6 +202,11 @@ public class Main {
                 break;
         }
     }
+    private static void minarRecursos(Jugador jugador, int energiaGastar) {
+        jugador.getNave().getBodega().agregarRecurso(jugador.getPlanetaActual().generarRecurso(), jugador.getNave().getCapacidadMaxima());
+        jugador.restarEnergia(energiaGastar);
+    }
+
 
 
     public static void mostrarMenuPrincipal(Entrada entrada) {
