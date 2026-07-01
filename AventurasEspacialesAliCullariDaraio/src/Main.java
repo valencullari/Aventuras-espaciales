@@ -127,7 +127,7 @@ public class Main {
 
     public static void menuVentas() {
         System.out.println("¿Que desea hacer?");
-        System.out.println("1. Vender recursos");
+        System.out.println("1. Vender recurso especifico");
         System.out.println("2. Vender todos los recursos");
         System.out.println("3. Salir del menú de ventas");
     }
@@ -135,7 +135,6 @@ public class Main {
     public static boolean ejecutarOpcionVentas(int opcion, Jugador jugador, Entrada entrada) {
         switch (opcion) {
             case 1:
-                System.out.println("Vender recurso especifico");
                     venderRecursos(jugador, entrada);
                 break;
             case 2:
@@ -150,17 +149,24 @@ public class Main {
     }
 
     private static void venderRecursos(Jugador jugador, Entrada entrada) {
+        boolean flag = false;
         jugador.getNave().getBodega().mostrarBodega();
         System.out.println("Ingrese el nombre del recurso que desea vender:");
         String nombreRecurso = entrada.ingresarTexto();
-        ArrayList<Recurso> recursos= jugador.getNave().getBodega().getListaRecursos();
-        for(int i = 0 ;i < jugador.getNave().getBodega().getListaRecursos().size(); i++) {
-            if(recursos.get(i).getNombre().equalsIgnoreCase(nombreRecurso)){
-                jugador.getNave().getBodega().eliminarRecurso(recursos.get(i));
+        ArrayList<Recurso> recursos = new ArrayList<>(jugador.getNave().getBodega().getListaRecursos());
+        for(Recurso recurso : recursos) {
+            if(recurso.getNombre().equalsIgnoreCase(nombreRecurso)){
+                jugador.getNave().getBodega().eliminarRecurso(recurso);
+                jugador.sumarCreditos(recurso.getValorVenta());
+                flag = true;
                 break;
-            }
+            } 
         }
-        jugador.getNave().getBodega().mostrarBodega();
+        if(flag) {
+            System.out.println("El recurso se vendio correctamente. Ahora tiene " + jugador.getCreditosEspaciales() + " creditos espaciales.");
+        } else {
+            System.out.println("No se pudo vender el articulo correctamente");
+        }
         
     }
 

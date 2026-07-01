@@ -32,11 +32,17 @@ public class Jugador {
     public void setCreditosEspaciales(int creditosEspaciales) {
         if (creditosEspaciales < 0){
             this.creditosEspaciales = 0;
+        } else {
+            this.creditosEspaciales = creditosEspaciales;
         }
     }
 
     public void restarCreditos(int creditosRestar) {
         setCreditosEspaciales(this.creditosEspaciales-creditosRestar);
+    }
+
+    public void sumarCreditos (int creditos) {
+        setCreditosEspaciales((this.creditosEspaciales+creditos));
     }
 
     public int getCreditosEspaciales() {

@@ -22,10 +22,9 @@ public class Bodega {
 
     public void eliminarRecurso(Recurso recursoQuitar) {
        for(int i = 0; i < this.listaRecursos.size(); i++){
-        if (listaRecursos.get(i).getNombre().equals(recursoQuitar.getNombre())) {
+        if (listaRecursos.get(i).getNombre().equalsIgnoreCase(recursoQuitar.getNombre())) {
             listaRecursos.remove(i);
             this.pesoUtilizado -= recursoQuitar.getPeso();
-            System.out.println("Se ha eliminado el recurso: " + recursoQuitar.getNombre());
             break;
         }
        }
@@ -61,7 +60,7 @@ public class Bodega {
         }
        
         if(cantCristal>0) {
-             System.out.println(recursosTotales[0].getNombre() + " (Peso: " + recursosTotales[0].getPeso() + ", Valor de venta: " + recursosTotales[0].getValorVenta() +", Cantidad: " + cantCristal + ")");
+            System.out.println(recursosTotales[0].getNombre() + " (Peso: " + recursosTotales[0].getPeso() + ", Valor de venta: " + recursosTotales[0].getValorVenta() +", Cantidad: " + cantCristal + ")");
         }
         if(cantGas>0) {
             System.out.println(recursosTotales[1].getNombre() + " (Peso: " + recursosTotales[1].getPeso() + ", Valor de venta: " + recursosTotales[1].getValorVenta() +", Cantidad: " + cantGas + ")");
