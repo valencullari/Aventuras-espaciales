@@ -3,12 +3,13 @@ import entrada.Entrada;
 import enums.TipoPlaneta;
 import naves.*;
 import planetas.Planeta;
-import recursos.Recurso;
+import recursos.*;
+import java.util.ArrayList;
 
 
 public class Main {
 
-    final static int PRECIO_REPARACION = 25,MIN_OPC_MENU = 1;
+    final static int PRECIO_REPARACION = 25, MIN_OPC_MENU = 1, MAX_OPC_MENU_VENTAS = 3;
 
 
     public static void main(String[] args) {
@@ -68,15 +69,33 @@ public class Main {
                 viajarPlaneta(jugador, entrada);
                 break;
             case 2:
-                System.out.println("Ver bodega de carga");
+                
+                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
+                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
+                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
+                if(jugador.getNave().getBodega().getListaRecursos() == null) {
+                    System.out.println("La bodega está vacía.");
+                } else {
+                    jugador.getNave().getBodega().mostrarBodega();
+                }
 
-                //PROBLEMITAS ni idea porque no puede llamar al metodo mostrarBodega() de la clase Bodega si a agregar recurso si puede.
-                Recurso recurso = new Recurso("Recurso de prueba", 10, 100);
-                jugador.getNave().getBodega().agregarRecurso(recurso, 150);
+                jugador.getNave().getBodega().eliminarRecurso(new Plasma());
                 jugador.getNave().getBodega().mostrarBodega();
                 break;
             case 3:
-                System.out.println("Vender recursos");
+                boolean flag = true;
+                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
+                jugador.getNave().getBodega().agregarRecurso(new Plasma(), jugador.getNave().getCapacidadMaxima());
+                jugador.getNave().getBodega().agregarRecurso(new Obsidiana(), jugador.getNave().getCapacidadMaxima());
+                if (jugador.getNave().getBodega().getPesoUtilizado() == 0) {
+                    System.out.println("No tenes recursos para vender");
+                } else {
+                    do {
+                        menuVentas();
+                        int opcionVenta = entrada.ingresarEntero(MIN_OPC_MENU, MAX_OPC_MENU_VENTAS);
+                        flag = ejecutarOpcionVentas(opcionVenta, jugador, entrada);
+                    } while (flag);
+                }
                 break;
             case 4:
                 System.out.println("Ver misiones disponibles");
@@ -103,6 +122,45 @@ public class Main {
                 
         }
         return true;
+        
+    }
+
+    public static void menuVentas() {
+        System.out.println("¿Que desea hacer?");
+        System.out.println("1. Vender recursos");
+        System.out.println("2. Vender todos los recursos");
+        System.out.println("3. Salir del menú de ventas");
+    }
+
+    public static boolean ejecutarOpcionVentas(int opcion, Jugador jugador, Entrada entrada) {
+        switch (opcion) {
+            case 1:
+                System.out.println("Vender recurso especifico");
+                    venderRecursos(jugador, entrada);
+                break;
+            case 2:
+                System.out.println("Vender todos los recursos");
+                //falta implementar la logica de vender todos los recursos
+                break;
+            case 3:
+                System.out.println("Saliendo del menú de ventas...");
+                return false;
+        }
+        return true;
+    }
+
+    private static void venderRecursos(Jugador jugador, Entrada entrada) {
+        jugador.getNave().getBodega().mostrarBodega();
+        System.out.println("Ingrese el nombre del recurso que desea vender:");
+        String nombreRecurso = entrada.ingresarTexto();
+        ArrayList<Recurso> recursos= jugador.getNave().getBodega().getListaRecursos();
+        for(int i = 0 ;i < jugador.getNave().getBodega().getListaRecursos().size(); i++) {
+            if(recursos.get(i).getNombre().equalsIgnoreCase(nombreRecurso)){
+                jugador.getNave().getBodega().eliminarRecurso(recursos.get(i));
+                break;
+            }
+        }
+        jugador.getNave().getBodega().mostrarBodega();
         
     }
 
