@@ -22,6 +22,8 @@ public class Jugador {
         return misiones;
     }
 
+    public Mision getMision(int indice) { return this.misiones[indice];}
+
     public Jugador(String nombre) {
         this.nombre = nombre;
     }

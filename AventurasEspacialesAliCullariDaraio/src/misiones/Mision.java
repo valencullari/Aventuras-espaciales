@@ -17,6 +17,16 @@ public class Mision {
 
         }
 
+
+        public int getRecompensa() {
+            return recompensa;
+        }
+
+        public void setCompletado(boolean completado) {
+            this.completado = completado;
+        }
+
+
         public void mostrarMision() {
             int cantCristal = 0, cantGas = 0, cantLava = 0, cantMineralComun = 0, cantNucleoEnergetico = 0, cantObsidiana = 0, cantPlasma = 0;
             Recurso[] recursosTotales = new Recurso[] {
@@ -40,6 +50,7 @@ public class Mision {
                     cantPlasma++;
                 }
             }
+
             System.out.println("Nombre: " + this.nombre);
             System.out.println("Recompensa: " + this.recompensa);
             if(this.completado) {
@@ -72,5 +83,10 @@ public class Mision {
 
         }
 
+        public ArrayList<Recurso> getRecursosRequeridos(){
+
+            return this.recursosRequeridos;
+
+        }
 
 }
