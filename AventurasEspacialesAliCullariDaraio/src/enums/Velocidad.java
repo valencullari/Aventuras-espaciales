@@ -1,9 +1,9 @@
 package enums;
 
 public enum Velocidad {
-    BAJA("Baja", 20),
+    BAJA("Baja", 60),
     MEDIA("Media", 40),
-    ALTA("Alta", 60);
+    ALTA("Alta", 20);
 
     private String nombre;
     private int probabilidadPeligro;

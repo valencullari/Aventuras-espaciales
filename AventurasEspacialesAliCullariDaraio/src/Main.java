@@ -45,6 +45,7 @@ public class Main {
             switch (estadoJuego) {
 
             case GANADO:
+            	System.out.println();
             	System.out.println("==================================");
                 System.out.println("          ¡VICTORIA!");
                 System.out.println("==================================");
@@ -54,6 +55,7 @@ public class Main {
                 break;
 
             case PERDIDO:
+            	System.out.println();
             	System.out.println("==================================");
                 System.out.println("           GAME OVER");
                 System.out.println("==================================");
@@ -63,6 +65,7 @@ public class Main {
                 break;
 
             case SALIDO:
+            	System.out.println();
                 System.out.println("\nHas salido del juego.");
                 mostrarResumen(jugador);
                 break;
@@ -88,6 +91,7 @@ public class Main {
         System.out.println("6. Reparar nave");
         System.out.println("7. Descansar");
         System.out.println("8. Salir del juego");
+        
     }
 
     public static boolean ejecutarOpcionBase(int opcion, Jugador jugador, Entrada entrada) {
@@ -391,6 +395,10 @@ public class Main {
                 break;
             case 3:
                 System.out.println("Regresar a la base");
+                generarPeligro(jugador);
+                if(jugador.getNave().getVida() <= 0){
+                    return;
+                }
                 jugador.setPlanetaActual(planetas[BASE]);
                 break;
         }
