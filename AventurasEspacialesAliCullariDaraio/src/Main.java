@@ -1,21 +1,20 @@
 import entidades.Jugador;
 import entrada.Entrada;
+import enums.EstadoJuego;
 import enums.TipoPlaneta;
-import misiones.Mision;
-import misiones.Mision1;
-import misiones.Mision2;
-import misiones.Mision3;
+import misiones.*;
 import naves.*;
+import peligrosEspaciales.*;
 import planetas.Planeta;
 import recursos.*;
 import utilidades.GenerarRandom;
-
 import java.util.ArrayList;
 
 
 public class Main {
 
     final static int PRECIO_REPARACION = 25, MIN_OPC_MENU = 1, MAX_OPC_MENU_VENTAS = 3;
+    private static EstadoJuego estadoJuego = EstadoJuego.JUGANDO;
 
 
     public static void main(String[] args) {
@@ -28,6 +27,7 @@ public class Main {
         jugador.setNave(seleccionarNaves(entrada));
         jugador.mostrarInformacion();
         jugador.getNave().mosrarInformacion();
+        
         do {
             if(jugador.getPlanetaActual().getTipo() == TipoPlaneta.BASE ) {
                 mostrarMenuPrincipal(entrada);
@@ -38,6 +38,38 @@ public class Main {
                 int opcion = entrada.ingresarEntero(MIN_OPC_MENU, MAX_OPC_MENU_PLANETAS);
                 ejecutarOpcionPlaneta(opcion, jugador, entrada);
             }
+            
+            if (flag) {
+                flag = verificarEstadoJuego(jugador);
+            }
+            switch (estadoJuego) {
+
+            case GANADO:
+            	System.out.println("==================================");
+                System.out.println("          ¡VICTORIA!");
+                System.out.println("==================================");
+                System.out.println("Has completado todas las misiones.");
+                System.out.println("¡Felicitaciones, comandante!");
+                mostrarResumen(jugador);
+                break;
+
+            case PERDIDO:
+            	System.out.println("==================================");
+                System.out.println("           GAME OVER");
+                System.out.println("==================================");
+                System.out.println("Tu nave ha sido destruida.");
+                System.out.println("No pudiste completar la aventura.");
+                mostrarResumen(jugador);
+                break;
+
+            case SALIDO:
+                System.out.println("\nHas salido del juego.");
+                mostrarResumen(jugador);
+                break;
+
+            default:
+                break;
+        }
         } while (flag);
 
         entrada.cerrarScanner();
@@ -89,7 +121,7 @@ public class Main {
                 break;
             case 5:
                 System.out.println("Ingrese la mision que desea completar");
-                mostrarMisiones(jugador);
+                mostrarMisionesCase5(jugador);
                 int indice = entrada.ingresarEntero(1,3);
                 completarMision(jugador,indice-1);
                 break;
@@ -107,7 +139,7 @@ public class Main {
                 break;
             case 8:
                 System.out.println("Saliendo del juego...");
-
+                estadoJuego = EstadoJuego.SALIDO;
                 return false;
 
         }
@@ -118,14 +150,20 @@ public class Main {
     // --- CASE 1: VIAJES Y PLANETAS ---
 
     private static void viajarPlaneta(Jugador jugador, Entrada entrada) {
-        System.out.println("Seleccione un planeta para viajar:");
-        mostrarPlanetas(getPlanetas());
-        int opcionPlaneta = entrada.ingresarEntero(MIN_OPC_MENU, getPlanetas().length-1);
-        if(jugador.getPlanetaActual().getTipo() == getPlanetas()[opcionPlaneta].getTipo()) {
+    	Planeta[] planetas = getPlanetas();
+    	System.out.println("Seleccione un planeta para viajar:");
+        mostrarPlanetas(planetas);
+        int opcionPlaneta = entrada.ingresarEntero(MIN_OPC_MENU, planetas.length-1);
+        
+        if(jugador.getPlanetaActual().getTipo() == planetas[opcionPlaneta].getTipo()) {
             System.out.println("Ya te encuentras en el planeta " + jugador.getPlanetaActual().getTipo().getNombre() + ". No puedes viajar al mismo planeta.");
             return;
         }
-        jugador.setPlanetaActual(opcionPlaneta == 1 ? new Planeta(TipoPlaneta.ROCOSO) : opcionPlaneta == 2 ? new Planeta(TipoPlaneta.GASEOSO) : new Planeta(TipoPlaneta.VOLCANICO));
+        generarPeligro(jugador);
+        if(jugador.getNave().getVida() <= 0){
+            return;
+        }
+        jugador.setPlanetaActual(planetas[opcionPlaneta]);
         System.out.println("Viajaste al planeta " + jugador.getPlanetaActual().getTipo().getNombre());
     }
 
@@ -142,6 +180,39 @@ public class Main {
         for (int i = 1; i < planetas.length; i++) {
             System.out.println((i) + ". " + planetas[i].getTipo().getNombre());
         }
+    }
+    
+    public static void generarPeligro(Jugador jugador) {
+    	PeligroEspacial peligro = null;
+    	int probabilidadPeligro = GenerarRandom.generarNumeroRandom(1, 100);
+    	
+    	if(probabilidadPeligro <= jugador.getNave().getVelocidad().getProbabilidadPeligro()) {
+    		int opc = GenerarRandom.generarNumeroRandom(1,3);
+    		switch(opc) {
+    		case 1:
+    			peligro = new PirataEspacial();
+    			System.out.println("¡Un pirata espacial emboscó tu nave e intentó robar tu carga!");
+    			break;
+    		case 2:
+    			peligro = new Renegado();
+    			System.out.println("¡Una nave renegada abrió fuego contra ti durante el viaje!");
+    			break;
+    		case 3:
+    			peligro = new TormentaCosmica();
+    			System.out.println("¡Una intensa tormenta cósmica golpeó tu nave con fuertes descargas de energía!");
+    			break;
+    		}
+    		
+    		int danio = peligro.calcularDanio(jugador.getNave().getVelocidad());
+    		jugador.getNave().restarVida(danio); 
+    		
+    		System.out.println("Daño recibido: " + danio + "%");
+    		System.out.println("Vida restante de la nave: " + jugador.getNave().getVida() + "%");
+    		
+    		
+    		
+    	} 
+    	
     }
 
     // --- CASE 3: VENTAS Y MENÚ DE VENTAS ---
@@ -206,39 +277,30 @@ public class Main {
         Mision[] mision = jugador.getMisiones();
         for(int i = 0; i<jugador.getMisiones().length;i++){
 
+        	if(!jugador.getMision(i).getCompletada())
             System.out.println("");
             System.out.println("Mision " + (i+1));
             mision[i].mostrarMision();
         }
+        
+        System.out.println("Cantidad de misiones completadas: " + contadorMisionesCompletadas(jugador));
+    }
+    
+    public static void mostrarMisionesCase5(Jugador jugador){
+        Mision[] mision = jugador.getMisiones();
+        for(int i = 0; i<jugador.getMisiones().length;i++){
+
+        	if(!jugador.getMision(i).getCompletada())
+            System.out.println("");
+            System.out.println("Mision " + (i+1));
+            mision[i].mostrarMision();
+        }
+       
+        System.out.println("Cantidad de misiones completadas: " + contadorMisionesCompletadas(jugador));
     }
 
-    // --- CASE 5 : Entrega de recursos de mision
-/*
-    public static void completarMision(Jugador jugador, int indice){
+    // --- CASE 5 : ENTREGAR RECURSOS MISION ---
 
-
-        ArrayList<Recurso> recursosMision = jugador.getMision(indice).getRecursosRequeridos();
-        ArrayList<Recurso> recursosBodega = jugador.getNave().getBodega().getListaRecursos();
-
-        if (recursosBodega == null ) {
-            System.out.println("No tienes recursos en la bodega.");
-            return;
-        }
-
-        for(int i = 0; i<jugador.getNave().getBodega().getListaRecursos().size();i++){
-            Recurso recursoBodega = recursosBodega.get(i);
-            for(int j =0; j < recursosMision.size(); j++) {
-                Recurso recursoMision = recursosMision.get(j);
-                if (recursoBodega.getNombre().equalsIgnoreCase(recursoMision.getNombre())) {
-
-                }
-
-            }
-        }
-
-
-
-    }*/
    public static void completarMision(Jugador jugador, int indice){
 
     Mision mision = jugador.getMision(indice);
@@ -381,6 +443,50 @@ public class Main {
                 return new Galaxian();
         }
         return null;
+    }
+    
+    // --- VICTORIA/DERROTA ---
+    
+    public static boolean verificarEstadoJuego(Jugador jugador) {
+
+
+        if (jugador.getNave().getVida() <= 0) {
+            
+            estadoJuego = EstadoJuego.PERDIDO;
+            return false;
+        }
+
+
+        for (Mision mision : jugador.getMisiones()) {
+            if (!mision.getCompletada()) {
+                return true;
+            }
+        }
+
+        
+        estadoJuego = EstadoJuego.GANADO;
+        return false;
+    }
+    
+    public static int contadorMisionesCompletadas(Jugador jugador) {
+    	int contador = 0;
+    	for(Mision mision : jugador.getMisiones()) {
+    		if (mision.getCompletada()) {
+               contador++;
+            }
+    	}
+    	return contador;
+    }
+    
+    public static void mostrarResumen (Jugador jugador) { 
+    	System.out.println("Resumen de la partida:");
+    	System.out.println("Nombre: " + jugador.getNombre());
+    	System.out.println("Nave utilizada: " + jugador.getNave().getNombre());
+    	System.out.println("Creditos espaciales: " + jugador.getCreditosEspaciales());
+    	System.out.println("Cantidad misiones completadas: " + contadorMisionesCompletadas(jugador));
+    	jugador.getNave().getBodega().mostrarBodega();
+
+    	
     }
 
 }

@@ -25,6 +25,10 @@ public class Mision {
         public void setCompletado(boolean completado) {
             this.completado = completado;
         }
+        
+        public boolean getCompletada() {
+        	return this.completado;
+        }
 
 
         public void mostrarMision() {

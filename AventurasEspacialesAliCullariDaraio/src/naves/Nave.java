@@ -50,6 +50,10 @@ public class Nave {
     public void sumarVida (int vida) {
         setVida((this.vida+vida));
     }
+    
+    public void restarVida (int vidaRestar) {
+    	setVida(this.vida - vidaRestar);
+    }
 
 
     public int getCapacidadActual() {
