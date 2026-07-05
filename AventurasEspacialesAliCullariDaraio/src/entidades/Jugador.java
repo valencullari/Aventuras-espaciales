@@ -1,19 +1,18 @@
 package entidades;
 
-import enums.TipoPlaneta;
 import misiones.Mision;
 import misiones.Mision1;
 import misiones.Mision2;
 import misiones.Mision3;
 import naves.Nave;
-import planetas.Planeta;
+import planetas.*;
 
 public class Jugador {
     private String nombre;
     private int energia = 100;
     private int creditosEspaciales = 0;
     private Nave nave;
-    private Planeta planetaActual = new Planeta(TipoPlaneta.BASE);
+    private Planeta planetaActual = new Base();
     private Mision[] misiones = {
             new Mision1(), new Mision2(), new Mision3()
     };
